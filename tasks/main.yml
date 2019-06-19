@@ -1,0 +1,5 @@
+---
+
+- include: ansible_tower_preflight_checks.yml
+- include: ansible_tower_prerequisites.yml
+- include: ansible_tower.yml

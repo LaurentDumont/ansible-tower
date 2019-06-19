@@ -1,0 +1,25 @@
+---
+
+# Need to find a way to loop over a list of registered variables.
+#- name: Ensure that no AWX containers are currently running.
+#  docker_container_info:
+#    name: "{{ item }}"
+#  register: CONTAINER_STATUS
+#  loop: "{{ AWX_DOCKER_CONTAINERS }}"
+#
+#- name: Print information about container
+#  debug:
+#    var: CONTAINER_STATUS.results[0]["item"]
+
+- name: Ensure that no AWX containers are currently running.
+  shell: 'docker ps | grep -i "awx_" | wc -l'
+  register: AWX_CONTAINERS_STATUS
+
+- name: Ensure that 5 AWX containers are currently present on the host.
+  fail:
+    msg: "AWX is already deployed - Aborting deployment"
+  when: AWX_CONTAINERS_STATUS.stdout == "5"
+
+- name: Print AWX installation status
+  debug:
+    msg: "Pre-deployment check are okay - Proceeding with Deployment!"

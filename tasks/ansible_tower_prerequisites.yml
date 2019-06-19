@@ -1,0 +1,17 @@
+---
+
+- name: Ensure that pre-requisites packages are present on the Tower host.
+  package:
+    name: "{{ PREREQUISITE_AWX_PACKAGES }}"
+    state: present
+
+- name: Ensure that the Node repository is present.
+  template:
+    src: nodesource.list.j2
+    dest: /etc/apt/sources.list.d/nodesource.list
+
+- name: Install Node
+  package:
+    name: nodejs
+    state: present
+    update_cache: yes

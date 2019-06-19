@@ -1,0 +1,30 @@
+---
+
+- name: Ensure that the custom data folder is present on the host.
+  file:
+    state: directory
+    path: "{{ AWX_FOLDER_PATH }}/awx-custom-data/"
+
+- name: Ensure that the Ansible Tower files are present on the host.
+  unarchive:
+    src: https://github.com/ansible/awx/archive/{{ ANSIBLE_TOWER_VERSION }}.zip 
+    dest: "{{ AWX_FOLDER_PATH }}"
+    remote_src: yes
+    creates: "{{ AWX_FOLDER_PATH }}/awx-5.0.0"
+
+- name: Ensure that the Installer templates are present on the host.
+  template:
+    src: inventory.yml.j2
+    dest: "{{ AWX_FOLDER_PATH }}/awx-5.0.0/installer/inventory"
+
+- name: Ensure virtualenv is present and packages are installed on the host.
+  pip:
+    virtualenv: "{{ AWX_FOLDER_PATH }}/awx-virtualenv"
+    name: "{{ AWX_PYTHON_PACKAGES }}"
+    virtualenv_python: python3
+    state: present
+
+- name: Ensure that Ansible Tower is deployed.
+  shell: ". {{ AWX_FOLDER_PATH }}/awx-virtualenv/bin/activate && ansible-playbook -i {{ AWX_FOLDER_PATH }}/awx-{{ ANSIBLE_TOWER_VERSION }}/installer/inventory install.yml"
+  args:
+    chdir: "{{ AWX_FOLDER_PATH }}/awx-{{ ANSIBLE_TOWER_VERSION }}/installer/"
